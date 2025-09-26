@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>WeatherPower — History Log</title>
+  <meta name="description" content="The official WeatherPower history log and milestone archive." />
+  <meta name="theme-color" content="#0b1220" />
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,0.06);
+      --card-2: rgba(255,255,255,0.08);
+      --text: #e9eefb;
+      --muted: #9fb0d3;
+      --accent: #7cc4ff;
+      --glass: blur(12px) saturate(120%);
+      --ring: 0 0 0 2px rgba(124,196,255,.35),0 0 30px rgba(124,196,255,.2) inset;
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #14325c 0%, transparent 60%),
+        radial-gradient(1000px 700px at 110% 10%, #1d3b6a 0%, transparent 60%),
+        linear-gradient(180deg, #0b1220 0%, #0b1220 100%);
+      background-color: var(--bg);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:var(--glass);
+      -webkit-backdrop-filter:var(--glass);
+      background:rgba(10,16,30,.55);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .topbar{
+      display:flex;gap:16px;align-items:center;justify-content:space-between;
+      padding:12px 24px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)
+    }
+    .logo{
+      width:36px;height:36px;border-radius:12px;
+      background:linear-gradient(135deg,#2a9df4, #1b6ed6 60%, #0b3a88);
+      box-shadow:var(--ring);
+      position:relative;overflow:hidden;
+    }
+    .logo:after{
+      content:"";position:absolute;inset:6px;border-radius:10px;
+      background:radial-gradient(120% 120% at 0% 0%, rgba(255,255,255,.35), transparent 45%);
+      mix-blend:screen;
+    }
+    nav a{
+      color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:10px;
+    }
+    nav a:hover{background:rgba(255,255,255,.06);color:var(--text)}
+    .hero{
+      margin:28px auto 16px; padding:28px;
+      border-radius:calc(var(--radius) + 6px);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    .hero h1{margin:0 0 6px;font-size:clamp(28px,4.5vw,44px);letter-spacing:.2px}
+    .hero p{margin:6px 0 0;color:var(--muted)}
+    .grid{
+      display:grid;gap:16px;margin:22px 0;
+      grid-template-columns:repeat(12,1fr)
+    }
+    .card{
+      grid-column:span 12;
+      border-radius:var(--radius);
+      background:var(--card);
+      backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      padding:18px 18px;
+    }
+    @media(min-width:820px){
+      .card.span6{grid-column:span 6}
+    }
+    .tag{
+      display:inline-flex;gap:8px;align-items:center;
+      font-size:12px;color:var(--accent);
+      padding:6px 10px;border-radius:999px;border:1px solid rgba(124,196,255,.35);
+      background:rgba(124,196,255,.08)
+    }
+    h2{margin:6px 0 8px;font-size:22px}
+    ul{margin:8px 0 0 18px;padding:0}
+    li{margin:6px 0}
+    .kbd{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.12)
+    }
+    .footer{
+      margin:28px 0 80px;display:flex;flex-direction:column;gap:16px;align-items:center
+    }
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+      color:#fff;background:linear-gradient(135deg,#1db954,#128a3e);
+      padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 8px 20px rgba(0,0,0,.25);
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .play-badge{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:0;border:none;background:transparent
+    }
+    /* Inline Google Play badge approximation (not official asset) */
+    .play{
+      display:inline-flex;align-items:center;gap:10px;
+      background:#000;border-radius:12px;padding:10px 14px;border:1px solid rgba(255,255,255,.15)
+    }
+    .triangle{
+      width:20px;height:20px;background:
+        conic-gradient(from 210deg,#00f0ff 0 33%, #29ff9a 0 66%, #ffc44d 0 100%);
+      clip-path: polygon(15% 0, 100% 50%, 15% 100%, 0 85%, 0 15%);
+      border-radius:4px
+    }
+    .play span{display:block;line-height:1}
+    .play .small{font-size:11px;color:#cbd5e1}
+    .play .big{font-size:15px;font-weight:700;color:#fff;letter-spacing:.2px}
+    .divider{
+      height:1px;background:linear-gradient(90deg,transparent, rgba(255,255,255,.16), transparent);
+      margin:10px 0 0
+    }
+    .notice{color:#b8c7e6;font-size:13px;text-align:center}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;margin-top:8px;
+      padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:12px
+    }
+    a.inline{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <a class="brand" href="#top">
+      <div class="logo" aria-hidden="true"></div>
+      <strong>WeatherPower</strong>
+    </a>
+    <nav>
+      <a href="#beginning">Beginning</a>
+      <a href="#radar-era">Radar Era</a>
+      <a href="#expansion">Expansion</a>
+      <a href="#alerts">Alerts &amp; WeBot</a>
+      <a href="#modern">Modern Era</a>
+      <a href="#today">Today</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="top" role="main">
+  <section class="hero" aria-label="Intro">
+    <div class="tag">🌩️ Official History Log</div>
+    <h1>How WeatherPower Evolved</h1>
+    <p>From a simple weather calendar to a full severe weather radar &amp; alert platform. Here’s every major milestone—clean, simple, fan-friendly.</p>
+    <div class="pill">Updated: <span class="kbd" id="today"></span></div>
+  </section>
+    <!-- 2019–2020 — The Spark -->
+    <article class="card" id="spark" aria-labelledby="h-spark">
+      <div class="tag">🌱 2019–2020</div>
+      <h2 id="h-spark">The Spark</h2>
+      <ul>
+        <li>The very first <strong>idea for WeatherPower</strong> was born — a dream to create a custom radar and alert platform.</li>
+        <li>The project didn’t have a name yet, just notes, mockups, and concepts about <strong>making storm tracking easier</strong>.</li>
+        <li>Back then, <strong>tech wasn’t as advanced as it is today</strong>, so the idea stayed on paper while the tools caught up.</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="notice">These early sketches planted the seed for what would later grow into WeatherPower.</p>
+    </article>
+
+  <section class="grid">
+    <!-- 2024 — Beginning -->
+    <article class="card" id="beginning" aria-labelledby="h-beginning">
+      <div class="tag">🟢 2024</div>
+      <h2 id="h-beginning">The Beginning</h2>
+      <ul>
+        <li>Launched as a <strong>basic weather calendar</strong> with simple forecasts.</li>
+        <li>Early builds showed <strong>current conditions, 7-day forecast, and embedded radar</strong>.</li>
+        <li>Initial branding and project name locked in.</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="notice">These roots focused on clarity and speed while we explored what fans actually used day-to-day.</p>
+    </article>
+
+    <!-- Late 2024 — Radar Era begins -->
+    <article class="card span6" id="radar-era" aria-labelledby="h-radar-era">
+      <div class="tag">⚡ Late 2024</div>
+      <h2 id="h-radar-era">The Radar Arrives</h2>
+      <ul>
+        <li>Shifted focus to <strong>live radar</strong> as the centerpiece.</li>
+        <li>Added <strong>clickable NWS warnings</strong> with zoom-to-alert.</li>
+        <li>Introduced <strong>storm tracks</strong> and a radar tower selector.</li>
+        <li>Launched the dedicated domain: <span class="kbd">weatherpower.shortlinerailfanners.com</span></li>
+      </ul>
+    </article>
+
+    <!-- Early 2025 — Expansion -->
+    <article class="card span6" id="expansion" aria-labelledby="h-expansion">
+      <div class="tag">🌪️ Early 2025</div>
+      <h2 id="h-expansion">Expanding Features</h2>
+      <ul>
+        <li><strong>SPC Outlook overlays</strong> (Day 1–3 risk levels).</li>
+        <li><strong>GOES satellite layers</strong> (IR, Visible, Water Vapor).</li>
+        <li><strong>Storm Chaser Mode</strong> with HazCams + GPS.</li>
+        <li><strong>Lightning strike overlay</strong> (live data).</li>
+        <li>First release of <strong>Replay Mode</strong> (past 6 hours).</li>
+      </ul>
+    </article>
+
+    <!-- Summer 2025 — Alerts & WeBot -->
+    <article class="card" id="alerts" aria-labelledby="h-alerts">
+      <div class="tag">🔔 Summer 2025</div>
+      <h2 id="h-alerts">Custom Alerts &amp; WeBot</h2>
+      <ul>
+        <li>Launched <strong>WeWatches &amp; WeWarnings</strong> with polygons and expiration timers.</li>
+        <li>Added alert sounds: Tornado 🚨 siren, Severe 🔔 chime, WeWatch 💡 ding.</li>
+        <li>Introduced <strong>WeBot</strong>:
+          <ul>
+            <li>Reads alerts with AI voice.</li>
+            <li>Auto-posts to Discord &amp; website.</li>
+            <li>Generates radar snapshots with countdown text.</li>
+          </ul>
+        </li>
+        <li>Added a <strong>scrolling warning ticker</strong> across the top of the site.</li>
+      </ul>
+    </article>
+
+    <!-- August 2025 — Modern Era -->
+    <article class="card span6" id="modern" aria-labelledby="h-modern">
+      <div class="tag">🎨 Aug 2025</div>
+      <h2 id="h-modern">The Modern Era</h2>
+      <ul>
+        <li>Full <strong>liquid glass</strong> redesign on a sleek dark canvas.</li>
+        <li>Round <strong>hamburger menu</strong> for Radar, Satellite, Outlooks, Replay.</li>
+        <li><strong>Sidebar toggles</strong> for layers: radar, lightning, storm tracks, SPC, GOES.</li>
+        <li><strong>Mobile bottom bar</strong>: Now, Daily, Monthly, Radar.</li>
+        <li><strong>Admin Dashboard</strong>: polygon editor, AI text, sound preview, history log, live counter.</li>
+      </ul>
+    </article>
+
+    <!-- Today — Platform status -->
+    <article class="card span6" id="today" aria-labelledby="h-today-card">
+      <div class="tag">🚀 Today</div>
+      <h2 id="h-today-card">WeatherPower 2025</h2>
+      <ul>
+        <li>Custom NOAA-based radar with <strong>reflectivity &amp; velocity</strong>.</li>
+        <li><strong>Nationwide NWS warnings</strong> (clickable + zoom).</li>
+        <li><strong>Replay Mode</strong>, storm tracks, satellite overlays, lightning strikes.</li>
+        <li><strong>WeWatches</strong>, <strong>WeWarnings</strong>, and <strong>WeBot</strong> voice alerts.</li>
+        <li>Modern, mobile-first UI + upcoming <strong>WeatherPower Plus</strong>.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="footer" aria-label="Download">
+    <div class="notice">Get WeatherPower on your phone</div>
+    <a class="play-badge" href="https://play.google.com/store/apps/details?id=co.median.android.pkmqnq" target="_blank" rel="noopener">
+      <span class="play" aria-label="Get it on Google Play">
+        <span class="triangle" aria-hidden="true"></span>
+        <span>
+          <span class="small">GET IT ON</span>
+          <span class="big">Google Play</span>
+        </span>
+      </span>
+    </a>
+    <div class="notice">Or visit: <a class="inline" href="https://play.google.com/store/apps/details?id=co.median.android.pkmqnq" target="_blank" rel="noopener">play.google.com/store/apps/details?id=co.median.android.pkmqnq</a></div>
+  </section>
+</main>
+
+<script>
+  // Set "Updated" date to the user's local time
+  const el = document.getElementById('today');
+  if (el) {
+    const d = new Date();
+    const fmt = new Intl.DateTimeFormat(undefined, {year:'numeric', month:'long', day:'numeric'});
+    el.textContent = fmt.format(d);
+  }
+
+  // Smooth scroll for anchor links (nice on mobile)
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      const id = a.getAttribute('href').substring(1);
+      const target = document.getElementById(id);
+      if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+</script>
+</body>
+</html>

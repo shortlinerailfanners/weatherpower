@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeatherPower | Temporarily Down</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 40px 60px;
+      text-align: center;
+      color: white;
+      max-width: 420px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .glass h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: #00cfff;
+      text-shadow: 0 0 8px #00cfff;
+    }
+
+    .glass p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 10px 0;
+    }
+
+    .countdown {
+      font-size: 1.3rem;
+      margin-top: 15px;
+      color: #00ffea;
+      font-weight: bold;
+      text-shadow: 0 0 6px #00ffea;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 80px;
+      filter: drop-shadow(0 0 10px #00cfff);
+    }
+
+    .bg-anim {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(0, 191, 255, 0.1) 0%, transparent 70%);
+      animation: pulse 4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-anim"></div>
+  <div class="glass">
+    <div class="logo">
+      <img src="logo.png" alt="WeatherPower Logo" />
+    </div>
+    <h1>We'll Be Back Soon</h1>
+    <p>WeatherPower is undergoing maintenance.<br>Please check back shortly.</p>
+    <p class="countdown" id="countdown">Redirecting in 60 seconds...</p>
+  </div>
+
+  <script>
+    let seconds = 60; // Countdown duration in seconds
+    const countdownEl = document.getElementById('countdown');
+    const redirectUrl = "https://weatherpower.shortlinerailfanners.com";
+
+    const timer = setInterval(() => {
+      seconds--;
+      countdownEl.textContent = `Redirecting in ${seconds} seconds...`;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = redirectUrl;
+      }
+    }, 1000);
+  </script>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>

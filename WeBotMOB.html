@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>WeBot — Weather Chat (NWS Live)</title>
+  <meta name="theme-color" content="#0e1024">
+  <style>
+    :root{--bg:#0b0d1a;--card:#111428;--glass:rgba(255,255,255,0.08);--glass-strong:rgba(255,255,255,0.12);--text:#e8edff;--muted:#a6b1d8;--accent:#77b5ff;--accent-2:#9ef1ff;--radius:18px;--shadow:0 10px 30px rgba(0,0,0,0.4)}
+    *{box-sizing:border-box}html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);
+      background:radial-gradient(1200px 800px at 85% -10%,#1a1f44 0%,transparent 40%),radial-gradient(800px 600px at -10% 90%,#0f1437 0%,transparent 45%),linear-gradient(180deg,#060712 0%,#0b0d1a 60%,#0b0d1a 100%);overflow:hidden}
+    .app{max-width:1100px;margin:0 auto;padding:20px;height:100%;display:grid;grid-template-rows:auto 1fr;gap:14px}
+    header{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--glass),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:14px 16px;backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);box-shadow:var(--shadow)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand img.logo{width:40px;height:40px;border-radius:12px;box-shadow:0 0 0 2px rgba(255,255,255,0.08) inset,0 10px 30px rgba(124,243,255,0.25)}
+    h1{font-size:18px;margin:0}.tag{font-size:12px;color:var(--muted);margin-top:2px}
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn{background:linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.16);color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;transition:.2s transform ease,.2s background ease,.2s border ease}
+    .btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.28)}
+    .btn.primary{background:linear-gradient(180deg,rgba(119,181,255,0.28),rgba(119,181,255,0.16));border-color:rgba(119,181,255,0.45)}
+    .pill{font-size:12px;padding:6px 10px;border-radius:999px;color:#0a1020;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;font-weight:600}
+    .unit-toggle{display:inline-flex;border:1px solid rgba(255,255,255,0.16);border-radius:999px;overflow:hidden}
+    .unit-toggle button{padding:8px 12px;font-weight:700;font-size:12px;cursor:pointer;background:transparent;color:var(--text);border:none}
+    .unit-toggle button.active{background:linear-gradient(180deg,rgba(119,181,255,0.30),rgba(119,181,255,0.12))}
+    .main{display:grid;grid-template-columns:1fr 320px;gap:14px;min-height:0}
+    .panel{background:linear-gradient(135deg,var(--glass),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);box-shadow:var(--shadow);overflow:hidden;min-height:0}
+    .chat{display:flex;flex-direction:column;height:100%}
+    .messages{padding:16px;overflow:auto;height:100%;scroll-behavior:smooth}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-start}
+    .msg.me{justify-content:flex-end}.msg.me .avatar{display:none}
+    .avatar{width:34px;height:34px;border-radius:10px;flex:0 0 auto;background:rgba(255,255,255,0.06);display:grid;place-content:center;border:1px solid rgba(255,255,255,0.12)}
+    .bubble{max-width:78%;padding:12px 14px;border-radius:14px;line-height:1.4;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);box-shadow:0 8px 24px rgba(0,0,0,0.25)}
+    .me .bubble{background:linear-gradient(180deg, rgba(119,181,255,0.28), rgba(119,181,255,0.12));border-color:rgba(119,181,255,0.45)}
+    .timestamp{font-size:11px;color:var(--muted);margin-top:6px}
+    .composer{display:flex;gap:10px;padding:12px;border-top:1px solid rgba(255,255,255,0.10)}
+    .input{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14)}
+    .input input{background:transparent;border:none;outline:none;color:var(--text);width:100%;font-size:15px}
+    .mic{cursor:pointer;border:none;background:transparent;color:var(--text);font-size:18px}
+    .sidebar{padding:14px;display:flex;flex-direction:column;gap:14px}
+    .card{background:linear-gradient(135deg,var(--glass-strong),rgba(255,255,255,0.05));border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px}
+    .muted{color:var(--muted);font-size:13px}.tiny{font-size:11px;color:var(--muted)}
+    .spinner{display:inline-block;vertical-align:-2px;width:18px;height:18px;border:3px solid rgba(255,255,255,0.25);border-top-color:var(--accent-2);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}@media (max-width:900px){.main{grid-template-columns:1fr}}
+    /* ===== Super-compact mobile layout ===== */
+    @media (max-width: 600px){
+      :root{ --radius:14px; }
+      .app{ padding:8px; }
+      header{ padding:10px 12px; border-radius:14px; }
+      .brand{ gap:8px; }
+      h1{ font-size:16px; }
+      .tag{ font-size:11px; line-height:1.2; }
+      .brand img.logo{ width:28px; height:28px; border-radius:8px; }
+      .actions{ gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .actions::-webkit-scrollbar{ display:none; }
+      .actions .btn, .unit-toggle button{ padding:8px 10px; font-size:12px; border-radius:10px; }
+      .unit-toggle{ flex:0 0 auto; }
+      .main{ gap:8px; }
+      .panel{ border-radius:14px; }
+      .messages{ padding:10px; }
+      .bubble{ max-width:95%; padding:10px 12px; border-radius:12px; }
+      .timestamp{ font-size:10px; }
+      .composer{ padding:8px; gap:8px; }
+      .input{ padding:12px 12px; }
+      .input input{ font-size:16px; }
+      #sendBtn{ min-width:72px; }
+      .sidebar{ padding:8px; }
+      .card{ padding:10px; }
+      .mobile-quick{ display:block; }
+      .sidebar .card:first-child{ display:none; }
+    }
+    @media (max-width: 380px){
+      .actions .btn{ padding:7px 8px; font-size:11px; }
+      .unit-toggle button{ padding:7px 8px; font-size:11px; }
+      #sendBtn{ min-width:64px; }
+      .bubble{ max-width:96%; }
+    }
+
+    #js-warning{background:#3b1d1d;border:1px solid #6b2a2a;color:#ffdede;padding:10px 12px;border-radius:10px;margin:10px 16px}
+  
+/* Hide just the sidebar Quick asks (desktop safety) */
+aside.panel.sidebar .card:first-of-type { display: none !important; }
+/* Collapse the whole sidebar on small screens */
+@media (max-width: 600px){
+  .main { grid-template-columns: 1fr !important; }
+  aside.panel.sidebar { display: none !important; }
+}
+
+</style>
+</head>
+<body>
+  <div id="js-warning">⚠️ Scripts didn’t run. Make sure <b>talk.js</b> is uploaded and allowed by your host’s CSP.</div>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <img src="WeBot_logo_small.png" alt="WeBot Logo" class="logo" />
+        <div>
+          <h1>WeBot</h1>
+          <div class="tag">Your own personal AI weather chatbot!</div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="unit-toggle" id="unitToggle" role="group" aria-label="Temperature units">
+          <button id="btnF" data-unit="fahrenheit">°F</button>
+          <button id="btnC" data-unit="celsius">°C</button>
+        </div>
+        <button class="btn pill" id="voiceToggle">🔊 Voice: On</button>
+        <button class="btn" id="talkToggle">🗣️ Talk Mode: Off</button>
+        <button class="btn primary" id="locateBtn">📍 Use My Location</button>
+        <button class="btn" id="selfCheckBtn">✅ Self‑check</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <section class="panel chat" aria-label="Chat with WeBot">
+        <div id="messages" class="messages"></div>
+        
+        <div class="card mobile-quick" aria-hidden="true">
+          <strong>Quick asks</strong>
+          <div class="muted">Tap to run</div>
+          <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px">
+            <button class="btn" data-suggest="What's the weather now in Idabel?">Now in Idabel</button>
+            <button class="btn" data-suggest="Any active weather alerts near me?">Alerts near me</button>
+            <button class="btn" data-suggest="What's the weather now at station KOKC?">Now at station KOKC</button>
+          </div>
+        </div>
+
+        <div class="composer">
+          <div class="input">
+            <button class="mic" id="micBtn" title="Hold to talk">🎤</button>
+            <input id="textInput" placeholder="Ask: 'now in Idabel' • 'now at station KOKC' • 'alerts in Dallas'" autocomplete="off"/>
+          </div>
+          <button class="btn primary" id="sendBtn" style="min-width:84px">Send ➤</button>
+        </div>
+      </section>
+
+      <aside class="panel sidebar">
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px">
+            <button class="btn" data-suggest="What's the weather now in Idabel?">Now in Idabel</button>
+            <button class="btn" data-suggest="Any active weather alerts near me?">Alerts near me</button>
+            <button class="btn" data-suggest="What's the weather now at station KOKC?">Now at station KOKC</button>
+          </div>
+        </div>
+        <div class="card">
+          <strong>Current spot</strong>
+          <div id="miniNow" class="muted">No location yet.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="talk.js?cb=1" defer></script>
+</body>
+</html>

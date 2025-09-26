@@ -1,0 +1,77 @@
+/* Liquid Glass Effect Styles */
+body {
+background: #101010;
+margin: 0;
+padding: 0;
+font-family: 'Segoe UI', sans-serif;
+color: #fff;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+}
+#controls, #topbar {
+background: rgba(30, 30, 30, 0.5);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
+border-radius: 12px;
+padding: 10px;
+margin: 6px;
+}
+#controls select,
+#controls button,
+#topbar button,
+#topbar input {
+background: rgba(255, 255, 255, 0.15);
+border: none;
+border-radius: 8px;
+color: #fff;
+padding: 6px 10px;
+font-size: 14px;
+transition: background 0.3s;
+}
+#controls select:hover,
+#controls button:hover,
+#topbar button:hover,
+#topbar input:focus {
+background: rgba(255, 255, 255, 0.25);
+outline: none;
+}
+#map {
+height: calc(100% - 80px);
+}
+#topbar {
+height: 60px !important;
+display: flex;
+justify-content: space-between;
+align-items: center;
+z-index: 10000;
+}
+.leaflet-popup-content-wrapper {
+background: rgba(30, 30, 30, 0.5) !important;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border-radius: 12px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+color: #fff;
+border: 1px solid rgba(255, 255, 255, 0.15);
+padding: 10px;
+}
+.leaflet-popup-tip {
+background: rgba(30, 30, 30, 0.5) !important;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+}
+.leaflet-popup-content h3 {
+background: rgba(0, 0, 0, 0.6);
+padding: 6px;
+border-radius: 6px;
+font-size: 14px;
+color: #fff;
+margin-bottom: 6px;
+font-weight: bold;
+}
+.leaflet-popup-content div {
+font-size: 13px;
+color: #ddd;
+}

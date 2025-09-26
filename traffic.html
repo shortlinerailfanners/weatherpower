@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WeatherPower - Traffic Cameras</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 1rem;
+    }
+    nav {
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      text-align: center;
+    }
+    nav a {
+      margin: 0 1rem;
+      color: #00aaff;
+      text-decoration: none;
+    }
+    h1 {
+      text-align: center;
+    }
+    .camera-feed {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .camera {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+      padding: 1rem;
+      width: 400px;
+      text-align: center;
+    }
+    .camera img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .camera a {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: #00aaff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="weather.html">Search City Weather</a>
+    <a href="spc.html">SPC Outlooks</a>
+    <a href="settings.html">Settings</a>
+    <a href="traffic.html">Traffic Cameras</a>
+  </nav>
+  <h1>Live U.S. Traffic Cameras</h1>
+  <div class="camera-feed">
+    <div class="camera">
+      <h3>Seattle, WA (I-5 @ Yesler Way)</h3>
+      <img src="https://images.wsdot.wa.gov/nw/005vc16470.jpg" alt="Seattle Cam">
+      <a href="https://wsdot.com/travel/real-time/cameras" target="_blank">View Live on WSDOT</a>
+    </div>
+    <div class="camera">
+      <h3>Las Vegas, NV (RTC Traffic Cam)</h3>
+      <img src="https://www.rtcws.com/cameras/i15_tropicana/i15_tropicana.jpg" alt="Vegas Cam">
+      <a href="https://www.rtcsnv.com/traffic-cams/watch-live/" target="_blank">View Live on RTC</a>
+    </div>
+    <div class="camera">
+      <h3>Louisiana (I-10 @ Baton Rouge)</h3>
+      <img src="https://cwwp2.dot.ca.gov/data/d10/cctv/image/10-49.jpg" alt="LA Cam">
+      <a href="https://www.511la.org/cctv" target="_blank">View Live on 511LA</a>
+    </div>
+  </div>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>

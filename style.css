@@ -1,0 +1,90 @@
+.theme-modern {
+background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+color: white;
+}
+.theme-classic {
+background: #004080;
+color: white;
+}
+.theme-minimal {
+background: #f4f4f4;
+color: black;
+}
+.mode-dark {
+color: white;
+}
+.mode-light {
+background-color: #ffffff;
+color: black;
+}
+.mode-light a {
+color: #007acc;
+}
+.theme-minimal a, .mode-light a {
+color: #007acc;
+}
+.theme-minimal input, .mode-light input,
+.theme-minimal button, .mode-light button,
+.theme-minimal select, .mode-light select {
+background-color: white;
+color: black;
+border: 1px solid #ccc;
+}
+/* === Liquid Glass Styling === */
+body {
+background: #101010;
+color: white;
+font-family: 'Segoe UI', sans-serif;
+}
+.glass, #controls, #topbar, .navbar, .popup-glass, .glass-card {
+background: rgba(30, 30, 30, 0.5);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
+border-radius: 12px;
+padding: 10px;
+color: white;
+}
+button, select, input[type="text"], input[type="button"], input[type="submit"] {
+background: rgba(255, 255, 255, 0.15);
+border: none;
+border-radius: 8px;
+color: #fff;
+padding: 6px 10px;
+font-size: 14px;
+transition: background 0.3s ease;
+}
+button:hover, select:hover, input[type="text"]:focus {
+background: rgba(255, 255, 255, 0.25);
+outline: none;
+}
+/* Leaflet popups */
+.leaflet-popup-content-wrapper {
+background: rgba(30, 30, 30, 0.5) !important;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border-radius: 12px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+color: #fff;
+border: 1px solid rgba(255, 255, 255, 0.15);
+padding: 10px;
+}
+.leaflet-popup-tip {
+background: rgba(30, 30, 30, 0.5) !important;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+}
+.leaflet-popup-content h3 {
+background: rgba(0, 0, 0, 0.6);
+padding: 6px;
+border-radius: 6px;
+font-size: 14px;
+color: #fff;
+margin-bottom: 6px;
+font-weight: bold;
+}
+.leaflet-popup-content div {
+font-size: 13px;
+color: #ddd;
+}

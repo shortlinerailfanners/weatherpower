@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>
+   WeatherPower - Full Hybrid Radar
+  </title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" rel="stylesheet"/>
+<link href="glass-style.css" rel="stylesheet"/>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+</script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js">
+</script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
+<style>
+@media screen and (max-width: 768px) {
+  #controls {
+    display: none !important;
+  }
+}
+</style><style>
+#mobileControlsPanel {
+  display: none;
+}
+@media screen and (max-width: 768px) {
+  #mobileControlsPanel {
+    display: none;
+  }
+}
+</style><style>
+.leaflet-popup-content-wrapper {
+  background: rgba(40, 40, 60, 0.65) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 12px !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.leaflet-popup-tip {
+  background: rgba(40, 40, 60, 0.65) !important;
+}
+</style><style>
+html, body {
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+#map {
+  height: 100% !important;
+  width: 100% !important;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+</style><style>
+#mobileControlsPanel {
+  display: none;
+  position: fixed;
+  bottom: 90px;
+  left: 25px;
+  right: 25px;
+  background: rgba(30, 30, 30, 0.95);
+  color: white;
+  border-radius: 12px;
+  z-index: 10001;
+  padding: 16px;
+  font-family: sans-serif;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+#mobileControlsPanel label,
+#mobileControlsPanel select,
+#mobileControlsPanel button {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
+}
+</style><style>
+@media screen and (max-width: 768px) {
+  #mobileBar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    transform: none !important;
+    background: rgba(20, 20, 30, 0.85) !important;
+    color: white !important;
+    border-radius: 0 0 12px 12px;
+    width: 100% !important;
+    padding: 10px 16px !important;
+    z-index: 10002 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+  }
+  #mobileBar img {
+    height: 38px !important;
+    margin-right: 10px;
+  }
+  #mobileBar .radar-btn {
+    background: #2563eb !important;
+    color: white !important;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+</style><style>
+@media screen and (max-width: 768px) {
+  #topbar,
+  nav,
+  .navbar,
+  .main-nav {
+    display: none !important;
+  }
+}
+</style></head>
+<body>
+
+<!-- WeatherPower Pause Popup -->
+<div id="updatePopup" style="
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  padding: 20px;
+  z-index: 99999;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+">
+  <h3 style="margin-top: 0;">🚧 WeatherPower Update Pause</h3>
+  <p>WeatherPower will not receive many updates over the next few weeks or months due to ongoing coding issues.</p>
+  <button onclick="document.getElementById('updatePopup').style.display='none'" style="
+    margin-top: 15px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+  ">Close</button>
+</div>
+<div id="mobileBar">
+<img alt="WeatherPower" src="logo.png"/>
+<button class="radar-btn">📡 Radar</button>
+</div>
+<style>
+   #warning-ticker {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 204, 0, 0.85);
+    color: #000;
+    font-weight: bold;
+    z-index: 99999;
+    padding: 8px 16px;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+}
+#ticker-toggle {
+    background: #000;
+    color: #fff;
+    font-size: 12px;
+    margin-right: 10px;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+#ticker-text-container {
+    flex-grow: 1;
+    overflow: hidden;
+}
+#ticker-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll-left 30s linear infinite;
+}
+@keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+.flash {
+    animation: flash-red 1s infinite;
+}
+@keyframes flash-red {
+    0%, 100% { background-color: rgba(255, 0, 0, 0.9); color: white; }
+    50% { background-color: rgba(255, 204, 0, 0.85); color: black; }
+}
+@media screen and (max-width: 768px) {
+    #warning-ticker {
+        font-size: 12px;
+        padding: 6px;
+    }
+    #ticker-toggle {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+}
+  </style>
+<div id="warning-ticker">
+<button id="ticker-toggle" onclick="toggleTicker()">
+    Hide
+   </button>
+<div id="ticker-text-container">
+<div id="ticker-text">
+     ⚠️ Loading latest warnings...
+    </div>
+</div>
+</div>
+<div id="controls" style="display: none;">
+<label>
+    Mode:
+   </label>
+<select id="mode">
+<option value="reflectivity">
+     Reflectivity (RainViewer)
+    </option>
+<option value="velocity">
+     Velocity (NOAA/IEM)
+    </option>
+</select>
+<label>
+    Radar Site:
+   </label>
+<select id="tower">
+<option value="KTLX">
+     KTLX (OKC)
+    </option>
+<option value="KFWS">
+     KFWS (DFW)
+    </option>
+<option value="KSHV">
+     KSHV (Shreveport)
+    </option>
+<option value="KLBB">
+     KLBB (Lubbock)
+    </option>
+</select>
+<button onclick="locateMe()">
+    📍 Locate Me
+   </button>
+<div id="timestamp">
+    Loading...
+   </div>
+</div>
+<div id="topbar" style="
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 48px;
+  background: #1d2c4b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-family: sans-serif;
+  z-index: 10000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+">
+<div style="display: flex; align-items: center; gap: 10px;">
+<img alt="WeatherPower" src="logo.png" style="height: 28px;"/>
+<span style="font-weight: bold; font-size: 16px;">
+     WeatherPower
+    </span>
+</div>
+<div style="display: flex; gap: 20px; font-size: 14px;">
+<button onclick="setMode('radar')" style="background:none;border:none;color:white;cursor:pointer;">
+     📡 Radar
+    </button>
+<button onclick="setMode('satellite')" style="background:none;border:none;color:white;cursor:pointer;">
+     🛰 Satellite
+    </button>
+<button onclick="setMode('outlooks')" style="background:none;border:none;color:white;cursor:pointer;">
+     ⚠ Outlooks
+    </button>
+<button onclick="toggleReplay()" style="background:none;border:none;color:white;cursor:pointer;">
+     🔁 Replay Mode
+    </button>
+</div>
+<div style="display: flex; align-items: center; gap: 8px;">
+<input id="locationSearch" placeholder="Search" style="padding:4px 6px;border-radius:4px;border:none;" type="text"/>
+<button onclick="locateUser()" style="background:#ffb300;border:none;border-radius:20px;padding:6px 12px;color:black;">
+     📍
+    </button>
+<div style="background:#ff5722;color:white;padding:4px 10px;border-radius:12px;font-weight:bold;">
+     🔔
+     <span id="alertCount">
+      0
+     </span>
+</div>
+</div>
+</div>
+<div id="map">
+</div>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js">
+</script>
+<script>
+
+function startCountdown(expireTime, container) {
+  function update() {
+    const now = Date.now();
+    const diff = expireTime - now;
+    if (diff <= 0) {
+      container.textContent = "⚠️ Expired";
+      clearInterval(timer);
+      return;
+    }
+    const m = Math.floor(diff / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    container.textContent = `🕒 Expires in ${m}m ${s}s`;
+  }
+  update();
+  const timer = setInterval(update, 1000);
+}
+
+   const map = L.map('map', { zoomControl: true }).setView([34.2, -95], 6);
+    const token = 'sk.eyJ1IjoibnVsbHdlYXRoZXIiLCJhIjoiY21ibDhrY3BwMTF6eDJscGs5bHByeG9meiJ9.f2ztfzK_Xvxx4S40o0ZKUw';
+
+    L.tileLayer(`https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=oRBstpk6Mqai2nJdCAMh`, {
+      tileSize: 512, zoomOffset: -1
+    }).addTo(map);
+
+    const mode = document.getElementById("mode");
+    const tower = document.getElementById("tower");
+    const timestamp = document.getElementById("timestamp");
+
+    let radarLayers = [], currentFrame = 0, loop, rainViewerFrames = [];
+
+    function loadRainViewer() {
+      if (loop) clearInterval(loop);
+      radarLayers.forEach(l => map.removeLayer(l));
+      radarLayers = [];
+
+      fetch("https://api.rainviewer.com/public/weather-maps.json")
+        .then(res => res.json())
+        .then(data => {
+          rainViewerFrames = data.radar.past.slice(-3);
+          rainViewerFrames.forEach((frame, i) => {
+            const tile = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${frame.path}/256/{z}/{x}/{y}/2/1_1.png`, {
+              errorTileUrl: 'https://tile.openstreetmap.org/blank.png',
+              tileSize: 256,
+              opacity: i === 0 ? 0.85 : 0,
+              zIndex: 9
+            });
+            tile.addTo(map);
+            radarLayers.push(tile);
+          });
+
+          currentFrame = 0;
+          loop = setInterval(() => {
+            radarLayers.forEach((l, i) => l.setOpacity(i === currentFrame ? 0.85 : 0));
+            timestamp.textContent = "RainViewer - Frame " + (currentFrame + 1);
+            currentFrame = (currentFrame + 1) % radarLayers.length;
+          }, 1000);
+        });
+    }
+
+    function loadVelocityTiles() {
+      if (loop) clearInterval(loop);
+      radarLayers.forEach(l => map.removeLayer(l));
+      radarLayers = [];
+
+      const site = tower.value;
+      for (let i = 0; i < 6; i++) {
+        const url = `https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::N0S::${site}::${i}::0::0.png`;
+        const tile = L.tileLayer(url, {
+          bounds: [[24.396308, -125.0], [49.384358, -66.93457]],
+          opacity: i === 0 ? 0.85 : 0,
+          zIndex: 9
+        });
+        tile.addTo(map);
+        radarLayers.push(tile);
+      }
+
+      currentFrame = 0;
+      loop = setInterval(() => {
+        radarLayers.forEach((l, idx) => l.setOpacity(idx === currentFrame ? 0.85 : 0));
+        timestamp.textContent = "Velocity - Frame " + (currentFrame + 1);
+        currentFrame = (currentFrame + 1) % radarLayers.length;
+      }, 1000);
+    }
+
+    function switchRadar() {
+      if (mode.value === "reflectivity") {
+        tower.disabled = true;
+        loadRainViewer();
+      } else {
+        tower.disabled = false;
+        loadVelocityTiles();
+      }
+    }
+
+    mode.addEventListener("change", switchRadar);
+    tower.addEventListener("change", () => {
+      if (mode.value === "velocity") loadVelocityTiles();
+    });
+
+    function locateMe() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          map.setView([lat, lon], 8);
+          L.circle([lat, lon], {
+            radius: 5000, color: '#00ffff', fillColor: '#00ffff', fillOpacity: 0.3
+          }).addTo(map).bindPopup("You are here").openPopup();
+        });
+      }
+    }
+
+    // Load warnings from NWS
+    fetch("https://api.weather.gov/alerts/active")
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: feature => {
+            const e = feature.properties.event || '';
+            let color = "#00ffff";
+            if (e.includes("Tornado")) color = "#ff0000";
+            else if (e.includes("Severe Thunderstorm")) color = "#ffff00";
+            else if (e.includes("Flash Flood")) color = "#00ff00";
+            return { color, weight: 2, fillOpacity: 0.2 };
+          },
+          onEachFeature: (feature, layer) => {
+            const p = feature.properties;
+            const bounds = layer.getBounds();
+            const popupHTML = `
+              <div style='background:#111;color:white;padding:10px;border-left:5px solid ${
+                p.event.includes("Tornado") ? "#ff0000" :
+                p.event.includes("Severe") ? "#ffff00" : "#00ffff"
+              };'>
+                <h3 style='margin:0 0 6px 0;'>${p.event.toUpperCase()}</h3>
+                <div><strong>Expires:</strong> ${new Date(p.expires).toLocaleTimeString()}<br><span id='countdown-${p.id || Math.random().toString(36).substring(2)}' style='font-weight:bold; color:gold;'></span></div>
+                <div><strong>Areas:</strong> ${p.areaDesc}</div>
+              </div>`;
+            layer.on("click", () => {
+              map.fitBounds(bounds, { padding: [30, 30] });
+              const cid = 'countdown-' + (p.id || Math.random().toString(36).substring(2));
+              setTimeout(() => {
+                const container = document.getElementById(cid);
+                if (container) {
+                  const expireTime = new Date(p.expires).getTime();
+                  container.textContent = "⏳ Loading...";
+                  startCountdown(expireTime, container);
+                }
+              }, 300);
+              layer.bindPopup(popupHTML).openPopup();
+            });
+          }
+        }).addTo(map);
+      });
+
+    switchRadar();
+  </script>
+<script defer src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a" type="text/javascript">
+</script>
+<script defer src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a" type="text/javascript">
+</script>
+<script>
+   const map = L.map("map").setView([37.8, -96], 4);
+  let baseLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  // Locate Me
+  function locateUser() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        map.setView([pos.coords.latitude, pos.coords.longitude], 8);
+      });
+    }
+  }
+
+  // RainViewer Radar Animation
+  let radarLayers = [], currentFrame = 0, loop, rainViewerFrames = [];
+  function loadRainViewer() {
+    fetch("https://api.rainviewer.com/public/weather-maps.json")
+      .then(res => res.json())
+      .then(data => {
+        rainViewerFrames = data.radar.past.slice(-3);
+        radarLayers.forEach(l => map.removeLayer(l));
+        radarLayers = [];
+        rainViewerFrames.forEach((frame, i) => {
+          const layer = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${frame.path}/256/{z}/{x}/{y}/2/1_1.png`, {
+              errorTileUrl: 'https://tile.openstreetmap.org/blank.png',
+            opacity: i === 0 ? 0.85 : 0,
+            zIndex: 8
+          });
+          layer.addTo(map);
+          radarLayers.push(layer);
+        });
+        currentFrame = 0;
+        if (loop) clearInterval(loop);
+        loop = setInterval(() => {
+          radarLayers.forEach((l, i) => l.setOpacity(i === currentFrame ? 0.85 : 0));
+          currentFrame = (currentFrame + 1) % radarLayers.length;
+        }, 1000);
+      });
+  }
+
+  // NWS Warnings
+  let nwsWarningsLayer = L.layerGroup().addTo(map);
+  let nwsWarningsVisible = true;
+  function toggleNWSWarnings() {
+    nwsWarningsVisible = !nwsWarningsVisible;
+    if (nwsWarningsVisible) {
+      nwsWarningsLayer.addTo(map);
+    } else {
+      map.removeLayer(nwsWarningsLayer);
+    }
+  }
+
+  function loadNWSWarnings() {
+    fetch("https://mesonet.agron.iastate.edu/geojson/warnings.json")
+      .then(res => res.json())
+      .then(data => {
+        nwsWarningsLayer.clearLayers();
+        let count = 0;
+        data.features.forEach(feature => {
+          try {
+            const coords = feature.geometry.coordinates;
+            const props = feature.properties;
+            if (!coords || !props) return;
+            let poly = null;
+            if (feature.geometry.type === "Polygon") {
+              poly = L.polygon(coords.map(ring => ring.map(p => [p[1], p[0]])), {
+                color: "red", weight: 2, fillOpacity: 0.3,
+                className: "flashing-warning"
+              });
+            } else if (feature.geometry.type === "MultiPolygon") {
+              poly = L.polygon(coords.map(part => part[0].map(p => [p[1], p[0]])), {
+                color: "red", weight: 2, fillOpacity: 0.3,
+                className: "flashing-warning"
+              });
+            }
+            if (poly) {
+              poly.bindPopup(`<b>${props.phenomena} ${props.significance}</b><br>${props.wfo}<br>Until: ${props.expiration}`);
+              poly.addTo(nwsWarningsLayer);
+              count++;
+            }
+          } catch (e) {}
+        });
+        const countElem = document.getElementById("nwsAlertTotal");
+        if (countElem) countElem.textContent = count;
+      });
+  }
+
+  // WeBot Sounds
+  const playWeBotSound = (type) => {
+    const audio = new Audio(type === "warning" ? "sounds/webot-warning.mp3" : "sounds/webot-watch.mp3");
+    audio.play();
+  };
+
+  window.addEventListener("load", () => {
+    loadRainViewer();
+    loadNWSWarnings();
+    setInterval(loadNWSWarnings, 120000);
+  });
+  </script>
+<style>
+   .flashing-warning {
+    animation: flashPolygon 1s infinite alternate;
+  }
+  @keyframes flashPolygon {
+    from { fill-opacity: 0.2; }
+    to { fill-opacity: 0.6; }
+  }
+  </style>
+<script>
+   // Create a warning layer group
+const warningsLayer = L.geoJSON(null, {
+  style: function (feature) {
+    return {
+      color: feature.properties.severity === "Severe" ? "red" : "orange",
+      weight: 2,
+      fillOpacity: 0.3,
+      dashArray: "5, 5"
+    };
+  },
+  onEachFeature: function (feature, layer) {
+    const props = feature.properties;
+    const name = props.event || "Alert";
+    const desc = props.headline || props.description || "Warning issued";
+    layer.bindPopup("<strong>" + name + "</strong><br>" + desc);
+    layer.on("click", () => {
+      map.fitBounds(layer.getBounds());
+    });
+  }
+}).addTo(map);
+
+// Auto-fetch NWS warnings (GeoJSON)
+async function loadWarnings() {
+  try {
+    const resp = await fetch("https://mesonet.agron.iastate.edu/geojson/warnings.json");
+    const data = await resp.json();
+    warningsLayer.clearLayers();
+    warningsLayer.addData(data);
+    document.getElementById("alertCount").innerText = data.features.length;
+  } catch (e) {
+    console.error("Warning load error:", e);
+  }
+}
+setInterval(loadWarnings, 30000);
+loadWarnings();
+  </script>
+<script defer src="js/rainviewer/rainviewer.min.js">
+</script>
+<script defer src="js/warnings/nws-warnings.js">
+</script>
+<script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js">
+</script>
+<script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js">
+</script>
+<script>
+   const firebaseConfig = {
+  apiKey: "AIzaSyASS1N5-3BrxmVBFIdhQZUmHny9lxeUmzY",
+  authDomain: "weatherpower-5643e.firebaseapp.com",
+  databaseURL: "https://weatherpower-5643e-default-rtdb.firebaseio.com",
+  projectId: "weatherpower-5643e",
+  storageBucket: "weatherpower-5643e.appspot.com",
+  messagingSenderId: "681022698521",
+  appId: "1:681022698521:web:23ae51481eeedcec3da688"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+  </script>
+</script>
+<audio id="severeTone" preload="auto" src="sounds/severe.mp3">
+</audio>
+<audio id="wewatchTone" preload="auto" src="sounds/watch.mp3">
+</audio>
+<script defer src="js/ui/banner-alerts.js">
+</script>
+<script defer src="js/controls/locate.js">
+</script>
+<script defer src="js/controls/replay-toggle.js">
+</script>
+<script defer src="js/controls/satellite-outlook.js">
+</script>
+<script defer src="/we_bot/WeBot.js" type="module">
+</script>
+<script>
+   setInterval(fetchNWSWarnings, 60000); // start the loop
+  </script>
+<!-- Load WeBot NWS Alert Watcher -->
+<script>
+   // Start checking every 60 seconds
+  setInterval(fetchNWSWarnings, 60000);
+  // Optional: run once immediately
+  fetchNWSWarnings();
+  </script>
+<script src="/we_bot/we_bot_radar_snapshot.js">
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js">
+</script>
+<script defer src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a" type="text/javascript">
+</script>
+<!-- Floating Glass Button & Sidebar Menu -->
+<style>
+   .remove-ads-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+  }
+
+  .remove-ads-btn span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #ffffff;
+    margin: 4px 0;
+    border-radius: 2px;
+  }
+
+  .sidebar-menu {
+    position: fixed;
+    bottom: 100px;
+    left: 25px;
+    width: 220px;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 10px;
+    padding: 10px 0;
+    color: white;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  .sidebar-menu a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: white;
+    transition: background 0.2s ease;
+  }
+
+  .sidebar-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  </style>
+<a class="remove-ads-btn" onclick="toggleSidebar()" title="Menu">
+<div>
+<span>
+</span>
+<span>
+</span>
+<span>
+</span>
+</div>
+</a>
+<div class="sidebar-menu" id="sidebarMenu">
+<a href="plus.html">
+    🚫 Remove Ads
+   </a>
+<a href="#">
+    🪪 My Account
+   </a>
+<a href="#">
+    📤 Share Map
+   </a>
+<a href="#" onclick="toggleTickerFromMenu()">
+    📢 Toggle Ticker
+   </a>
+<a href="#" onclick="refreshRadar()">
+    🔁 Refresh Radar
+   </a>
+<a href="#" onclick="locateMe()">
+    📍 Locate Me
+   </a>
+<a href="#" onclick="toggleSound()">
+    🔊 Toggle Sound
+   </a>
+<a href="#" onclick="toggleDangerLevelVisibility()">
+    ⚠️ Toggle Danger Level
+</a>
+
+<a href="#" onclick="toggleMobileControls()">📲 Radar Controls</a></div>
+<script>
+   function toggleSidebar() {
+    const menu = document.getElementById('sidebarMenu');
+    menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  }
+  </script>
+<script>
+let tickerVisible = true;
+function toggleTickerFromMenu() {
+  const ticker = document.getElementById('warning-ticker');
+  tickerVisible = !tickerVisible;
+  if (ticker) {
+    ticker.style.display = tickerVisible ? 'flex' : 'none';
+  }
+}
+
+function refreshRadar() {
+  window.location.reload();
+}
+
+let soundEnabled = true;
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  alert("Sound " + (soundEnabled ? "enabled" : "muted"));
+}
+</script>
+<script>
+async function fetchWarnings() {
+  try {
+    const res = await fetch('https://api.weather.gov/alerts/active');
+    const data = await res.json();
+    const warnings = data.features
+      .filter(f => ['Tornado Warning','Severe Thunderstorm Warning','Flash Flood Warning','Hurricane Warning'].includes(f.properties.event));
+
+    const messages = warnings.map(f => {
+      const event = f.properties.event;
+      const area = f.properties.areaDesc;
+      const ends = new Date(f.properties.ends).toLocaleTimeString();
+      return `⚠️ ${event} for ${area} until ${ends}`;
+    });
+
+    const tickerText = document.getElementById('ticker-text');
+    if (tickerText) {
+      tickerText.innerText = messages.join('  •  ') || '✅ No active warnings at the moment';
+    }
+
+    const hasTornado = warnings.some(f => f.properties.event === 'Tornado Warning');
+    const ticker = document.getElementById('warning-ticker');
+    if (ticker) {
+      if (hasTornado) {
+        ticker.classList.add('flash');
+      } else {
+        ticker.classList.remove('flash');
+      }
+    }
+  } catch (e) {
+    const tickerText = document.getElementById('ticker-text');
+    if (tickerText) {
+      tickerText.innerText = '⚠️ Failed to load warnings.';
+    }
+  }
+}
+
+fetchWarnings();
+setInterval(fetchWarnings, 60000);
+</script>
+<!-- Mobile Control Panel -->
+<div id="mobileControlsPanel">
+<label for="mode">Radar Mode</label>
+<select id="modeMobile" onchange="applyMobileMode()">
+<option value="reflectivity">Reflectivity (RainViewer)</option>
+<option value="velocity">Velocity (NOAA/IEM)</option>
+</select>
+<label for="tower">Radar Site</label>
+<select id="towerMobile" onchange="applyMobileTower()">
+<option value="KTLX">KTLX (OKC)</option>
+<option value="KFWS">KFWS (DFW)</option>
+<option value="KSHV">KSHV (Shreveport)</option>
+<option value="KLBB">KLBB (Lubbock)</option>
+</select>
+<button onclick="locateMe()">📍 Locate Me</button>
+</div>
+<!-- Mobile Floating Bar -->
+<script>
+function toggleDesktopControls() {
+  const bar = document.getElementById('controls');
+  if (bar) {
+    bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  }
+}
+</script><script>
+function toggleMobileControls() {
+  const panel = document.getElementById('mobileControlsPanel');
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+<script defer type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script defer type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<!-- Danger Level Meter -->
+<div id="dangerMeter" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 9999;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; border-radius: 20px;
+    color: white; font-weight: bold; font-size: 16px; text-align: center;">
+  <div id="dangerLevelBox" style="position:absolute;top:100px;left:100px;z-index:9999;background:#111;border:2px solid green;border-radius:20px;padding:10px;color:white;">Current Danger Level: <span id="dangerLevel">Loading...</span>
+</div>
+
+<!-- WeBot Chat -->
+<div id="webotChat" style="position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 9999;
+    font-family: sans-serif; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+    color: white; border-radius: 15px; overflow: hidden; display: none; flex-direction: column;">
+  <div style="background: rgba(255, 255, 255, 0.1); padding: 10px; font-weight: bold;">WeBot</div>
+  <div id="chatMessages" style="height: 200px; overflow-y: auto; padding: 10px; font-size: 14px;"></div>
+  <div style="display: flex; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+    <input id="chatInput" placeholder="Ask WeBot..." style="flex: 1; padding: 10px; border: none; background: transparent; color: white;" />
+    <button onclick="sendChat()" style="background: #1a1a1a; border: none; color: white; padding: 10px;">➤</button>
+  </div>
+</div>
+<button onclick="document.getElementById('webotChat').style.display='flex'" style="position: fixed; bottom: 20px; right: 340px;
+    background: #1a1a1a; color: white; border: none; border-radius: 50%; width: 50px; height: 50px;
+    font-size: 24px; z-index: 9999;">💬</button>
+
+<!-- Downtime Banner -->
+<div id="downtimeBanner" style="position: fixed; top: 0; width: 100%; z-index: 10000;
+    background: rgba(255, 165, 0, 0.8); color: black; text-align: center; font-weight: bold;
+    padding: 10px; font-size: 14px; font-family: sans-serif;">
+  ⚠️ WeatherPower will be temporarily offline on <b>July 30th, 2025</b> due to domain renewal.
+  <button onclick="this.parentElement.style.display='none'" style="margin-left: 10px; background: black; color: white; border: none; padding: 3px 7px; border-radius: 5px;">Dismiss</button>
+</div>
+
+<script>
+function evaluateDangerLevel() {
+  const warnings = window.activeWarnings || [];
+  const custom = window.customAlerts || [];
+
+  let level = "Calm";
+  let color = "green";
+
+  const dangerTypes = [...warnings, ...custom].map(w => w.type || "").join(" ");
+
+  if (dangerTypes.includes("Tornado")) {
+    level = "Extreme"; color = "red";
+  } else if (dangerTypes.includes("Severe")) {
+    level = "Dangerous"; color = "orange";
+  } else if (dangerTypes.includes("Flood")) {
+    level = "Caution"; color = "yellow";
+  }
+
+  document.getElementById("dangerLevel").innerText = level;
+  document.getElementById("dangerMeter").style.borderColor = color;
+}
+
+function sendChat() {
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim();
+  if (!msg) return;
+  const messages = document.getElementById("chatMessages");
+  messages.innerHTML += "<div><b>You:</b> " + msg + "</div>";
+
+  let reply = "Sorry, I don't understand.";
+  const lower = msg.toLowerCase();
+  if (lower.includes("warning")) reply = "Checking current alerts... You may be under a warning.";
+  else if (lower.includes("tornado")) reply = "Tornado risk is being evaluated based on radar and alert data.";
+  else if (lower.includes("hail")) reply = "If hail cores are nearby, they will show as purple areas on the radar.";
+  else if (lower.includes("am i in danger")) reply = "Stay tuned. If there's a warning near your area, Danger Meter will update.";
+
+  messages.innerHTML += "<div><b>WeBot:</b> " + reply + "</div>";
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Simulate alert updates after load
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    window.activeWarnings = [{ type: "Severe Thunderstorm" }];
+    evaluateDangerLevel();
+  }, 3000);
+});
+</script>
+
+
+<script>
+// Shared array to store all recognized dangers
+window.dangerLevels = [];
+
+// Danger Level Meter evaluator based on real data
+function evaluateDangerLevel() {
+  let level = "Calm";
+  let color = "green";
+  const levels = window.dangerLevels.join(" ").toLowerCase();
+
+  if (levels.includes("tornado")) {
+    level = "Extreme"; color = "red";
+  } else if (levels.includes("severe")) {
+    level = "Dangerous"; color = "orange";
+  } else if (levels.includes("flood")) {
+    level = "Caution"; color = "yellow";
+  } else if (levels.includes("heat") || levels.includes("wind")) {
+    level = "Elevated"; color = "gold";
+  }
+
+  document.getElementById("dangerLevel").innerText = level;
+  document.getElementById("dangerMeter").style.borderColor = color;
+}
+
+// Improved WeBot logic
+function sendChat() {
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim().toLowerCase();
+  if (!msg) return;
+
+  const messages = document.getElementById("chatMessages");
+  messages.innerHTML += "<div><b>You:</b> " + msg + "</div>";
+
+  let reply = "Sorry, I don't understand.";
+
+  if (["hi", "hello", "hey"].some(w => msg.includes(w))) {
+    reply = "Hey! I'm WeBot. Ask about the weather, hail, or any town like 'Idabel'.";
+  } else if (msg.includes("weather")) {
+    reply = "You can zoom to your town or say something like 'weather in Idabel'.";
+  } else if (msg.includes("idabel")) {
+    reply = "Checking weather for Idabel, OK. If there's a warning, it'll show on the radar.";
+  } else if (msg.includes("tornado")) {
+    reply = "Tornado Warnings will appear in red. Take shelter if one is near you.";
+  } else if (msg.includes("hail")) {
+    reply = "Hail storms appear purple on radar. Watch the Danger Meter for updates.";
+  } else if (msg.includes("heat")) {
+    reply = "Extreme heat alerts show up in yellow if temp > 100°F.";
+  } else if (msg.includes("wind")) {
+    reply = "Strong wind gusts over 25 MPH will trigger alerts on the radar.";
+  } else if (msg.includes("danger")) {
+    reply = "Check the Danger Level Bar at the top. It updates every few seconds.";
+
+  }
+
+  messages.innerHTML += "<div><b>WeBot:</b> " + reply + "</div>";
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Read OpenWeather alerts
+window.checkWeatherDanger = function(data) {
+  const danger = [];
+  if (!data.weather) return;
+  for (let i = 0; i < data.weather.length; i++) {
+    const desc = data.weather[i].description.toLowerCase();
+    if (desc.includes("rain")) danger.push("Rain");
+    if (desc.includes("storm")) danger.push("Severe");
+    if (desc.includes("wind")) danger.push("Wind");
+    if (desc.includes("heat")) danger.push("Heat");
+  }
+  window.dangerLevels = danger;
+};
+
+// Re-evaluate meter every 5s
+window.addEventListener("load", () => {
+  setInterval(evaluateDangerLevel, 5000);
+});
+
+</script>
+
+
+<script>
+// DOM-based danger scanner — reads visible warnings
+function evaluateDangerLevelFromDOM() {
+  let level = "Calm";
+  let color = "green";
+
+  const popupTexts = Array.from(document.querySelectorAll(".leaflet-popup-content"))
+    .map(el => el.innerText.toLowerCase())
+    .join(" ");
+
+  if (popupTexts.includes("tornado")) {
+    level = "Extreme"; color = "red";
+  } else if (popupTexts.includes("severe")) {
+    level = "Dangerous"; color = "orange";
+  } else if (popupTexts.includes("flood")) {
+    level = "Caution"; color = "yellow";
+  } else if (popupTexts.includes("heat") || popupTexts.includes("wind")) {
+    level = "Elevated"; color = "gold";
+  } else if (popupTexts.includes("special weather statement")) {
+    level = "Watchful"; color = "cyan";
+  }
+
+  document.getElementById("dangerLevel").innerText = level;
+  document.getElementById("dangerMeter").style.borderColor = color;
+}
+
+window.addEventListener("load", () => {
+  setInterval(evaluateDangerLevelFromDOM, 4000);
+});
+</script>
+
+
+<script>
+function evaluateDangerLevelFromDOM() {
+  let level = "Calm";
+  let color = "green";
+  const log = [];
+
+  const contentAreas = [
+    ...document.querySelectorAll(".leaflet-popup-content"),
+    ...document.querySelectorAll(".leaflet-pane")
+  ];
+
+  contentAreas.forEach(el => {
+    const text = el.innerText?.toLowerCase() || "";
+    log.push(text);
+
+    if (text.includes("tornado")) {
+      level = "Extreme"; color = "red";
+    } else if (text.includes("severe")) {
+      if (level !== "Extreme") {
+        level = "Dangerous"; color = "orange";
+      }
+    } else if (text.includes("flood")) {
+      if (!["Extreme", "Dangerous"].includes(level)) {
+        level = "Caution"; color = "yellow";
+      }
+    } else if (text.includes("heat") || text.includes("wind")) {
+      if (!["Extreme", "Dangerous", "Caution"].includes(level)) {
+        level = "Elevated"; color = "gold";
+      }
+    } else if (text.includes("special weather statement")) {
+      if (level === "Calm") {
+        level = "Watchful"; color = "cyan";
+      }
+    }
+  });
+
+  console.log("🧠 Danger Meter Scan:", log);
+  document.getElementById("dangerLevel").innerText = level;
+  document.getElementById("dangerMeter").style.borderColor = color;
+}
+
+window.addEventListener("load", () => {
+  setInterval(evaluateDangerLevelFromDOM, 4000);
+});
+</script>
+
+
+<script>
+window.addEventListener("load", () => {
+  const perf = window.performance.timing;
+  const pageLoadTime = (perf.loadEventEnd - perf.navigationStart) / 1000;
+  console.log("🚀 WeatherPower Page Load Time:", pageLoadTime + "s");
+});
+</script>
+
+<script src="main-weather-logic.js"></script>
+
+<script>
+function toggleDangerBox() {
+    const dangerBox = document.getElementById('dangerLevelBox');
+    if (dangerBox) {
+        dangerBox.style.display = dangerBox.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Make dangerLevelBox draggable
+document.addEventListener('DOMContentLoaded', () => {
+    const box = document.getElementById('dangerLevelBox');
+    if (!box) return;
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    box.style.position = 'absolute';
+    box.style.zIndex = '9999';
+
+    box.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - box.offsetLeft;
+        offsetY = e.clientY - box.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            box.style.left = `${e.clientX - offsetX}px`;
+            box.style.top = `${e.clientY - offsetY}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => isDragging = false);
+});
+</script>
+
+
+<script>
+function toggleDangerLevelVisibility() {
+  const dangerBox = document.getElementById("dangerLevelBox");
+  if (dangerBox) {
+    dangerBox.style.display = dangerBox.style.display === "none" ? "block" : "none";
+  }
+}
+</script>
+
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script>
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      if (document.readyState !== "complete") {
+        console.log("✅ Forcing load complete state.");
+        window.dispatchEvent(new Event('load'));
+      }
+    }, 5000);
+  });
+</script>
+
+</body>
+</html>

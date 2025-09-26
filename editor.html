@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeatherPower Admin Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+</head>
+<body class="bg-gray-900 text-white font-sans">
+  <div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4 text-center">WeatherPower Admin Pro</h1>
+
+    <div id="auth" class="bg-gray-800 p-4 rounded mb-6">
+      <h2 class="text-xl font-semibold mb-2">Login</h2>
+      <input id="email" type="email" placeholder="Email" class="w-full mb-2 p-2 text-black rounded">
+      <input id="password" type="password" placeholder="Password" class="w-full mb-2 p-2 text-black rounded">
+      <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Login</button>
+      <p id="login-status" class="text-green-400 mt-2 hidden">Logged in!</p>
+    </div>
+
+    <div id="editor" class="hidden">
+      
+<div style="text-align:right; margin-top: -40px; margin-bottom: 10px;">
+  <button onclick="logout()" style="background:#d33; color:white; padding:6px 10px; border:none; border-radius:4px;">🔓 Logout</button>
+</div>
+
+<h2 class="text-xl font-semibold mb-2">Create New Alert</h2>
+      <div class="space-y-2">
+        <select id="type" onchange="autoFill()" class="w-full p-2 text-black rounded">
+          <option value="">-- Select Alert Type --</option>
+          <option value="Tornado Warning">Tornado Warning</option>
+          <option value="Severe Thunderstorm Warning">Severe Thunderstorm Warning</option>
+          <option value="Flash Flood Warning">Flash Flood Warning</option>
+<option value="WeWatch">WeWatch</option>
+        </select>
+        <input id="headline" placeholder="Headline" class="w-full p-2 text-black rounded">
+        <input id="desc" placeholder="Description" class="w-full p-2 text-black rounded">
+        <input id="region" placeholder="Region (e.g. McCurtain County)" class="w-full p-2 text-black rounded">
+        <input id="end" type="datetime-local" class="w-full p-2 text-black rounded">
+        <input id="audio" placeholder="Audio URL (optional)" class="w-full p-2 text-black rounded">
+        <button onclick="generateVoice()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded w-full">🎙 Preview Voice</button>
+        <button onclick="submitAlert()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full">Submit Alert</button>
+      </div>
+
+      <h2 class="text-xl font-semibold mt-6 mb-2">Draw Polygon</h2>
+      <div id="map" class="h-80 rounded shadow mb-6"></div>
+
+      
+<div class="flex items-center justify-between mt-6 mb-2">
+  <h2 class="text-xl font-semibold">Active Alerts</h2>
+  <div class="flex gap-4">
+    <span id="alertCount" class="text-green-300 text-sm self-center">0 active</span>
+    <button onclick="toggleAlertList()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 text-sm rounded">Toggle Alerts</button>
+  </div>
+</div>
+
+      <ul id="alert-list" class="space-y-2"></ul>
+
+      <h2 class="text-xl font-semibold mt-8 mb-2">Alert Logbook</h2>
+      <ul id="logbook" class="text-sm text-gray-300 space-y-1"></ul>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="../scripts/firebase-config.js"></script>
+  <script>
+    const auth = firebase.auth();
+
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+  firebase.auth().onAuthStateChanged(user => {
+    if (map) setTimeout(() => map.invalidateSize(), 500);
+    if (user) {
+      document.getElementById("auth").classList.add("hidden");
+      document.getElementById("editor").classList.remove("hidden");
+        setTimeout(() => map.invalidateSize(), 500);
+      renderAlerts();
+    }
+  });
+});
+
+    const db = firebase.database();
+
+    let drawnCoords = [];
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password).then(() => {
+        document.getElementById("auth").classList.add("hidden");
+        document.getElementById("editor").classList.remove("hidden");
+        setTimeout(() => map.invalidateSize(), 500);
+        setTimeout(() => map.invalidateSize(), 300);
+        renderAlerts();
+      }).catch(e => alert("Login failed: " + e.message));
+    }
+
+    const map = L.map("map").setView([34.2, -94.8], 8);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+    const drawnItems = new L.FeatureGroup().addTo(map);
+    new L.Control.Draw({ draw: { polygon: true, marker: false, polyline: false, circle: false, rectangle: false }, edit: { featureGroup: drawnItems }}).addTo(map);
+    map.on("draw:created", e => {
+      drawnItems.clearLayers();
+      drawnItems.addLayer(e.layer);
+      drawnCoords = e.layer.getLatLngs()[0].map(p => [p.lat, p.lng]);
+    });
+
+    function autoFill() {
+      const type = document.getElementById("type").value;
+      if (type === "Tornado Warning") {
+        document.getElementById("headline").value = "Confirmed Tornado in the Area";
+        document.getElementById("desc").value = "A tornado has been sighted. Take cover immediately in a sturdy structure.";
+      } else if (type === "Severe Thunderstorm Warning") {
+        document.getElementById("headline").value = "Severe Thunderstorm Approaching";
+        document.getElementById("desc").value = "High winds and large hail possible. Seek shelter indoors.";
+      } else if (type === "Flash Flood Warning") {
+        document.getElementById("headline").value = "Flash Flood Conditions";
+        document.getElementById("desc").value = "Heavy rain causing flash flooding. Move to higher ground.";
+      }
+    }
+
+    function generateVoice() {
+      const text = document.getElementById("type").value + " for " + document.getElementById("region").value + " until " + document.getElementById("end").value + ". " + document.getElementById("desc").value;
+      const voice = new SpeechSynthesisUtterance(text);
+      voice.pitch = 0.9;
+      voice.rate = 1.0;
+      voice.lang = "en-US";
+      speechSynthesis.speak(voice);
+    }
+
+    function submitAlert() {
+      const alert = {
+        type: document.getElementById("type").value,
+        headline: document.getElementById("headline").value,
+        desc: document.getElementById("desc").value,
+        region: document.getElementById("region").value,
+        end: new Date(document.getElementById("end").value).toISOString(),
+        polygon: drawnCoords,
+        audio: document.getElementById("audio").value || null
+      };
+      db.ref("alerts/" + Date.now()).set(alert).then(() => alert("Alert submitted!")).catch(err => alert(err.message));
+    }
+
+    function renderAlerts() {
+      db.ref("alerts").on("value", snap => {
+        const list = document.getElementById("alert-list");
+        const log = document.getElementById("logbook");
+        list.innerHTML = "";
+        log.innerHTML = "";
+        const data = snap.val();
+        if (!data) return;
+        Object.entries(data).forEach(([id, a]) => {
+          const expired = new Date(a.end) < new Date();
+          const item = document.createElement("li");
+          item.className = "bg-gray-800 p-3 rounded flex justify-between items-center";
+          item.innerHTML = `
+            <div>
+              <b class='${a.type === 'WeWatch' ? 'text-yellow-400' : 'text-white'}'>${a.type}</b> – ${a.region}<br><small>${a.headline}</small>
+            </div>
+            <button onclick="db.ref('alerts/${id}').remove()" class="bg-red-600 px-3 py-1 rounded hover:bg-red-700">Delete</button>
+          `;
+          if (expired) {
+            const logitem = document.createElement("li");
+            logitem.innerText = `${a.type} | ${a.region} | Expired ${new Date(a.end).toLocaleTimeString()}`;
+            log.appendChild(logitem);
+          } else {
+            list.appendChild(item);
+          }
+        });
+      });
+    }
+  </script>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>
+
+<script>
+function logout() {
+  firebase.auth().signOut().then(() => {
+    location.reload();
+  });
+}
+</script>
+
+<script>
+function toggleAlertList() {
+  const list = document.getElementById("alert-list");
+  list.style.display = list.style.display === "none" ? "block" : "none";
+}
+</script>

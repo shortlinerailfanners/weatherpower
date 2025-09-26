@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>WeatherPower • Alerts</title>
+<style>
+  :root{
+    --glass-bg: rgba(255,255,255,0.08);
+    --glass-stroke: rgba(255,255,255,0.25);
+    --ink: #eef3ff;
+    --muted: #c9d2ff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    color:var(--ink);
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(1200px 800px at 20% -10%, #203a91 0%, transparent 60%),
+      radial-gradient(1200px 800px at 120% 10%, #1a2a70 0%, transparent 60%),
+      linear-gradient(180deg, #030712 0%, #0a1028 100%);
+  }
+  .appbar{
+    position:sticky; top:0; z-index:1000;
+    background:linear-gradient(180deg, rgba(3,8,20,.85), rgba(3,8,20,.45));
+    backdrop-filter:saturate(160%) blur(10px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px;
+  }
+  .brand{ display:flex; gap:10px; align-items:center; font-weight:700; }
+  .loc{ font-size:.95rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .icon{width:24px; height:24px; display:inline-block; opacity:.9}
+
+  .sky{
+    position:relative; min-height:180px;
+    background:
+      linear-gradient(180deg, rgba(13,35,93,.9), rgba(13,35,93,.3)),
+      url('data:image/svg+xml;utf8,\
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">\
+      <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">\
+      <stop stop-color="%23a9c7ff" offset="0"/><stop stop-color="%23ddebff" offset="1"/></linearGradient></defs>\
+      <rect width="1200" height="800" fill="url(%23g)"/></svg>') center/cover no-repeat;
+    display:flex; align-items:flex-end; padding:16px 16px 12px; overflow:hidden;
+  }
+  .tempRow{ display:flex; align-items:flex-end; gap:16px; }
+  .temp{ font-size:88px; line-height:.85; font-weight:900; letter-spacing:-2px; text-shadow:0 8px 34px rgba(0,0,0,.38); }
+  .cond{ font-size:20px; font-weight:800; opacity:.98 }
+  .feels{ font-size:15px; color:var(--muted) }
+  .updated{ font-size:12px; color:#aab4ff; margin-top:2px }
+
+  .glass{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-stroke);
+    border-radius:18px;
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .grid{ display:grid; gap:12px; padding:12px; }
+  .metrics{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:12px; }
+  .metric{ padding:10px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.08);
+           background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); }
+  .metric .k{ font-size:12px; color:var(--muted) }
+  .metric .v{ font-size:18px; font-weight:700; margin-top:2px }
+
+  .sectionTitle{ font-weight:800; letter-spacing:.4px; padding:10px 12px 0; }
+
+  .hourly{ display:flex; overflow-x:auto; gap:10px; padding:12px; }
+  .chip{ min-width:82px; text-align:center; padding:10px 8px; border-radius:14px;
+         border:1px solid rgba(255,255,255,.08);
+         background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); }
+  .chip .t{ font-weight:700; font-size:16px }
+  .chip .h{ font-size:12px; color:var(--muted) }
+  .chip img{ width:34px; height:34px }
+
+  .nav{
+    position:fixed; left:0; right:0; bottom:calc(env(safe-area-inset-bottom, 0px)); z-index:1000;
+    display:flex; justify-content:space-around; gap:8px;
+    padding:10px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+    background:linear-gradient(180deg, rgba(3,8,20,.35), rgba(3,8,20,.75));
+    backdrop-filter: blur(10px);
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .nav a{
+    flex:1; text-decoration:none; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:8px 6px; border-radius:12px;
+  }
+  .nav a.active{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15) }
+  .row{ display:flex; align-items:center; gap:8px }
+  .pill{ padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
+         font-size:11px; color:#bfe3ff; background:rgba(123,192,255,.1) }
+  .card{ padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,.12);
+         background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); margin:12px; }
+  .linkbtn{ display:inline-block; margin:6px 6px 0 0; padding:8px 12px; border-radius:12px;
+            border:1px solid rgba(255,255,255,.22); color:#eaf2ff; text-decoration:none;
+            background:rgba(255,255,255,.08); }
+</style>
+</head>
+<body>
+
+  <header class="appbar">
+    <div class="brand">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M4 6h16M4 18h16" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      <div>
+        <div style="font-size:15px; font-weight:800;">WeatherPower</div>
+        <div class="loc"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.1 7-11a7 7 0 10-14 0c0 5.9 7 11 7 11z" stroke="white" stroke-width="2"/><circle cx="12" cy="10" r="2.5" fill="white"/></svg><span id="locText">Locating…</span></div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="pill" id="updateTag">updating</span>
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/><path d="M20 20l-3-3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+  </header>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between;">
+    <div>Active US Severe Alerts (NWS)</div>
+    <div class="pill" id="alertCount">—</div>
+  </div>
+  <div id="alertList" style="font-size:13px; margin-top:10px;"></div>
+  <div style="font-size:12px; color:var(--muted); margin-top:8px;">Counts Tornado/Severe Thunderstorm/Flash Flood warnings nationwide.</div>
+</div>
+
+  <nav class="nav">
+    <a href="index.html" class="" id="navHome">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 10l8-6 8 6v8a2 2 0 0 1-2 2h-4v-6H10v6H6a2 2 0 0 1-2-2v-8z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+      <small>Now</small>
+    </a>
+    <a href="hourly.html" class="" id="navHourly">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="white" stroke-width="2"/></svg>
+      <small>Hourly</small>
+    </a>
+    <a href="https://weatherpower.shortlinerailfanners.com/radar.html" id="navRadar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="5" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="1.8" fill="white"/></svg>
+      <small>Radar</small>
+    </a>
+    <a href="cameras.html" class="" id="navCams">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="white" stroke-width="2"/><path d="M16 10l5-3v10l-5-3" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+      <small>Cameras</small>
+    </a>
+    <a href="alerts.html" class="active" id="navAlerts">
+      <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 18H3L12 2z" stroke="white" stroke-width="2"/><circle cx="12" cy="17" r="1" fill="white"/><path d="M12 9v5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      <small>Alerts</small>
+    </a>
+  </nav>
+
+<script src="wp-location.js"></script>
+<script>
+
+const OW_KEY = "962f12fdf48a09046d18f1927913816f"; // <- put your OpenWeather key
+const dewF = (tF, rh)=>{
+  const tc=(tF-32)*5/9, a=17.62, b=243.12;
+  const g=(a*tc/(b+tc))+Math.log(rh/100);
+  return Math.round(((b*g)/(a-g))*9/5+32);
+};
+function setUpdated(){
+  const t=new Date();
+  const u=document.getElementById('updated');
+  if(u) u.textContent = `updated ${t.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}`;
+  const tag=document.getElementById('updateTag');
+  if(tag){ tag.textContent='updated'; tag.style.borderColor='rgba(139,227,255,.7)'; tag.style.background='rgba(139,227,255,.15)'; }
+}
+function setLocText(name,country){
+  const lt=document.getElementById('locText');
+  if(lt) lt.textContent = `${name || 'Your Location'}${country?`, ${country}`:''}`;
+}
+
+async function loadAlerts(){
+  try{
+    const res=await fetch('https://api.weather.gov/alerts/active?status=actual');
+    const j=await res.json();
+    const sev=(j.features||[]).filter(f=>{
+      const e=(f.properties?.event||'').toLowerCase();
+      return e.includes('tornado warning') || e.includes('severe thunderstorm warning') || e.includes('flash flood warning');
+    });
+    document.getElementById('alertCount').textContent=sev.length;
+    const list=document.getElementById('alertList'); list.innerHTML='';
+    sev.slice(0,25).forEach(f=>{
+      const p=f.properties||{};
+      const d=document.createElement('div'); d.style.margin='6px 0';
+      const t = (p.event||'').replace(/\b\w/g,s=>s.toUpperCase());
+      const area = (p.areaDesc||'').split(';').slice(0,3).join('; ');
+      d.innerHTML=`<div><strong>${t}</strong> — ${area}</div><div style="font-size:12px;color:#c9d2ff">Expires: ${new Date(p.ends||p.expires||p.effective||Date.now()).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div>`;
+      list.appendChild(d);
+    });
+  }catch(e){
+    document.getElementById('alertList').textContent='Unable to load alerts right now.';
+  }
+  setUpdated();
+}
+(function(){
+  loadAlerts(); setInterval(loadAlerts, 120000);
+  const fallback=()=>{ setLocText('WeatherPower',''); };
+  if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>{ setLocText('Your Location',''); }, fallback, {timeout:8000});
+  else fallback();
+});
+})();
+
+(function initAlerts(){
+  loadAlerts(); setInterval(loadAlerts, 120000);
+  WP.getCoords().then(coords => {
+  if(saved){ setLocText('Your Location',''); }
+});
+})();
+
+</script>
+</body></html>

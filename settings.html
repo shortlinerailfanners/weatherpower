@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WeatherPower - Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f2027;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    nav {
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+    }
+    nav a {
+      margin: 0 1rem;
+      color: #00aaff;
+      text-decoration: none;
+    }
+    select, button {
+      padding: 0.5rem 1rem;
+      margin: 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+  </style>
+<script src="theme.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="weather.html">Search City Weather</a>
+    <a href="spc.html">SPC Outlooks</a>
+    <a href="settings.html">Settings</a>
+  <a href="traffic.html" style="margin-left: 1rem; color: #00aaff; text-decoration: none;">Traffic Cameras</a></nav>
+  <h1>Website Settings</h1>
+  <label for="themeSelect">Select Theme:</label>
+  <select id="themeSelect">
+    <option value="modern">Modern</option>
+    <option value="classic">Classic</option>
+    <option value="minimal">Minimal</option>
+  </select>
+  <br>
+  <label for="modeSelect">Select Mode:</label>
+  <select id="modeSelect">
+    <option value="dark">Dark</option>
+    <option value="light">Light</option>
+  </select>
+  <br>
+  <button onclick="saveSettings()">Save Settings</button>
+  <button onclick="resetSettings()">Reset to Default</button>
+
+  <script>
+    function saveSettings() {
+      const theme = document.getElementById('themeSelect').value;
+      const mode = document.getElementById('modeSelect').value;
+      localStorage.setItem('theme', theme);
+      localStorage.setItem('mode', mode);
+      alert('Settings saved! Refresh any page to apply.');
+    }
+
+    function resetSettings() {
+      localStorage.removeItem('theme');
+      localStorage.removeItem('mode');
+      alert('Settings reset! Refresh to return to default.');
+    }
+
+    // Preload saved values
+    window.onload = () => {
+      document.getElementById('themeSelect').value = localStorage.getItem('theme') || 'modern';
+      document.getElementById('modeSelect').value = localStorage.getItem('mode') || 'dark';
+    };
+  </script>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>

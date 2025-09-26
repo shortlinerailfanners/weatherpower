@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeatherPower Plus</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .glass-box {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      width: 90%;
+      max-width: 500px;
+      padding: 40px;
+      color: #eeeeee;
+      text-align: center;
+      background-blend-mode: overlay;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: #eeeeee;
+    }
+
+    ul {
+      text-align: left;
+      padding: 0;
+      list-style: none;
+      font-size: 1.1rem;
+      margin-top: 20px;
+    }
+
+    ul li {
+      margin-bottom: 10px;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    ul li::before {
+      content: '✔';
+      position: absolute;
+      left: 0;
+      color: #00ffff;
+    }
+
+    .subscribe-btn {
+      margin-top: 25px;
+      padding: 14px 28px;
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .subscribe-btn:hover {
+      background-color: #009acd;
+    }
+  </style>
+</head>
+<body>
+  <div class="glass-box">
+    <img src="weatherpower_logo.png" class="logo" alt="WeatherPower Logo" />
+    <h1>WeatherPower Plus</h1>
+    <p>Unlock premium features:</p>
+    <ul>
+      <li>Ad-free experience</li>
+      <li>TV Mode & Radar Replay</li>
+      <li>Custom Alert Sounds</li>
+      <li>Early Feature Access</li>
+      <li>Enhanced WeBot Voices</li>
+      <li>Exclusive Models Access</li>
+    </ul>
+    
+    <div style="margin-top: 30px;">
+      <button class="subscribe-btn" onclick="startCheckout('monthly')">Subscribe - $6.99/mo</button>
+      <br><br>
+      <button class="subscribe-btn" onclick="startCheckout('weekly')">Subscribe - $0.99/week</button>
+      <br><br>
+      <button class="subscribe-btn" onclick="startCheckout('yearly')">Subscribe - $120/year</button>
+    
+      
+    </div>
+    
+    
+  
+      
+    </div>
+    
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    const stripe = Stripe("pk_test_your_publishable_key_here");
+    function startCheckout(plan) {
+      fetch(`/create-checkout-session?plan=${plan}`, {
+        method: 'POST',
+      })
+      .then(response => response.json())
+      .then(session => stripe.redirectToCheckout({ sessionId: session.id }))
+      .catch(error => console.error("Checkout error:", error));
+    }
+  </script>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>

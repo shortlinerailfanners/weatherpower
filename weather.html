@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WeatherPower - City Weather</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      width: 60%;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: none;
+      background: #00aaff;
+      color: white;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+    #results {
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+    }
+  </style>
+<script src="theme.js"></script>
+</head>
+
+<body>
+  <nav style="background: rgba(255,255,255,0.05); padding: 1rem; text-align: center;">
+    <a href="index.html" style="margin-right: 1rem; color: #00aaff; text-decoration: none;">Home</a>
+    <a href="weather.html" style="color: #00aaff; text-decoration: none;">Search City Weather</a>
+  <a href="spc.html" style="margin-left: 1rem; color: #00aaff; text-decoration: none;">SPC Outlooks</a><a href="settings.html" style="margin-left: 1rem; color: #00aaff; text-decoration: none;">Settings</a><a href="traffic.html" style="margin-left: 1rem; color: #00aaff; text-decoration: none;">Traffic Cameras</a></nav>
+
+  <h1>Search City Weather</h1>
+  <input type="text" id="citySearch" placeholder="Enter a city">
+  <button onclick="getCityWeather()">Search</button>
+  <div id="results"></div>
+
+  <script>
+    function getCityWeather() {
+      const city = document.getElementById('citySearch').value.trim();
+      if (!city) return;
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=962f12fdf48a09046d18f1927913816f&units=imperial`)
+        .then(res => res.json())
+        .then(data => {
+          const div = document.getElementById('results');
+          div.innerHTML = `
+            <h2>Weather in ${data.name}</h2>
+            <p>${data.weather[0].description}, ${data.main.temp}°F</p>
+            <p>Humidity: ${data.main.humidity}%, Wind: ${data.wind.speed} mph</p>
+          `;
+        })
+        .catch(() => {
+          document.getElementById('results').innerHTML = "<p>City not found.</p>";
+        });
+    }
+  </script>
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+
+<script type="text/javascript" src="/unprotected/back_to_spaceship.js?hash=4975d460e508829e8fb64d3962bc44ad35f3a95a"></script>
+
+</body>
+</html>
