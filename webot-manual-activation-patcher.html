@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171717">
+  <title>WeBot Manual Activation Patcher</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#111112;--panel:#202020;--panel2:#2a2a2a;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.15);--text:#f5f5f5;--muted:#a4a4a4;--accent:#d97757;--accent2:#e8a87c;--ok:#86efac;--bad:#fca5a5;--warn:#fde68a}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 50% -10%,rgba(217,119,87,.12),transparent 35%),var(--bg);color:var(--text)}body{display:grid;place-items:center;padding:20px}.shell{width:min(100%,640px)}.brand{display:flex;align-items:center;gap:12px;margin-bottom:17px}.mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));font:900 23px 'Barlow Condensed',sans-serif;color:#fff}.title{font:900 28px 'Barlow Condensed',sans-serif}.sub{margin-top:2px;color:var(--muted);font-size:12px}.card{border:1px solid var(--line);border-radius:21px;background:linear-gradient(180deg,var(--panel),#191919);padding:20px;box-shadow:0 28px 100px rgba(0,0,0,.42)}.card h1{margin:0;font:900 27px 'Barlow Condensed',sans-serif}.text{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.6}.safe{margin-top:14px;padding:11px 12px;border:1px solid rgba(34,197,94,.27);border-radius:12px;background:rgba(34,197,94,.07);color:var(--ok);font-size:12px;line-height:1.5}.drop{margin-top:16px;border:1px dashed rgba(232,168,124,.44);border-radius:16px;background:rgba(232,168,124,.05);padding:24px 16px;text-align:center;cursor:pointer}.drop.drag{background:rgba(232,168,124,.11);border-color:var(--accent2)}.drop strong{display:block;font-size:14px}.drop span{display:block;margin-top:6px;color:var(--muted);font-size:11px}.fileName{margin-top:12px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.03);color:var(--muted);font-size:11px;word-break:break-all}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.btn{min-height:44px;border-radius:11px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--text);font:800 13px Inter,sans-serif;cursor:pointer}.btn.primary{border-color:transparent;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff5eb}.btn:disabled{opacity:.45;cursor:not-allowed}.status{display:none;margin-top:13px;padding:11px 12px;border-radius:12px;font-size:12px;line-height:1.55}.status.show{display:block}.status.ok{border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.07);color:var(--ok)}.status.bad{border:1px solid rgba(239,68,68,.28);background:rgba(239,68,68,.07);color:var(--bad)}.list{display:grid;gap:7px;margin-top:15px}.item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.45}.dot{width:7px;height:7px;margin-top:4px;border-radius:50%;background:var(--accent2);flex:0 0 auto}@media(max-width:560px){body{padding:0;place-items:end center}.shell{width:100%}.brand{padding:18px 16px 0}.card{border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));min-height:72vh}.buttons{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><div class="mark">W</div><div><div class="title">WeBot Build Patcher</div><div class="sub">Adds manual Stripe activation codes to your current single-file build.</div></div></div>
+    <section class="card">
+      <h1>Patch the latest WeBot HTML</h1>
+      <div class="text">Choose your current WeBot HTML. The file stays in your browser; it is not uploaded. The patcher embeds the activation system directly into a new single HTML file and ZIP.</div>
+      <div class="safe"><strong>Your API key stays untouched.</strong> This patch only inserts the manual activation-code interface before the closing body tag.</div>
+      <input id="fileInput" type="file" accept=".html,text/html" hidden>
+      <div class="drop" id="drop"><strong>Choose or drop the WeBot HTML</strong><span>Use the newest Stripe Checkout Fixed build.</span></div>
+      <div class="fileName" id="fileName">No HTML selected</div>
+      <div class="buttons"><button class="btn primary" id="patchHtml" type="button" disabled>Download patched HTML</button><button class="btn" id="patchZip" type="button" disabled>Download patched ZIP</button></div>
+      <div class="status" id="status"></div>
+      <div class="list"><div class="item"><span class="dot"></span><span>Adds “Enter activation code” inside WeBot billing and settings.</span></div><div class="item"><span class="dot"></span><span>Shows that manual activation can take up to 2 days.</span></div><div class="item"><span class="dot"></span><span>Saves Supporter or Fable Unlimited locally with an expiration date.</span></div><div class="item"><span class="dot"></span><span>Does not use Firebase Realtime Database or a paid webhook for subscription activation.</span></div></div>
+    </section>
+  </main>
+  <script>
+    (()=>{
+      const PATCH_START='<!-- WEBOT_MANUAL_ACTIVATION_PATCH_START -->';
+      const PATCH_END='<!-- WEBOT_MANUAL_ACTIVATION_PATCH_END -->';
+      const $=id=>document.getElementById(id);
+      let selectedFile=null;
+      let patchedCache=null;
+      function show(text,ok){const el=$('status');el.className=`status show ${ok?'ok':'bad'}`;el.textContent=text}
+      function cleanName(name){return String(name||'WeBot.html').replace(/\.html?$/i,'').replace(/-Manual-Activation$/i,'')}
+      async function loadPatchSources(){
+        const [coreResponse,uiResponse]=await Promise.all([fetch('webot-activation-core.js',{cache:'no-store'}),fetch('webot-manual-activation.js',{cache:'no-store'})]);
+        if(!coreResponse.ok||!uiResponse.ok)throw new Error('Could not load the activation patch files. Make sure this patcher is hosted beside them.');
+        return {core:await coreResponse.text(),ui:await uiResponse.text()};
+      }
+      function stripExistingPatch(html){const pattern=new RegExp(`${PATCH_START.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}[\\s\\S]*?${PATCH_END.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}`,'g');return html.replace(pattern,'')}
+      async function buildPatched(){
+        if(!selectedFile)throw new Error('Choose the latest WeBot HTML first.');
+        if(patchedCache)return patchedCache;
+        const original=await selectedFile.text();
+        if(!/<\/body\s*>/i.test(original))throw new Error('This does not look like a complete WeBot HTML file.');
+        const sources=await loadPatchSources();
+        const safeCore=sources.core.replace(/<\/script/gi,'<\\/script');
+        const safeUi=sources.ui.replace(/<\/script/gi,'<\\/script');
+        const patch=`\n${PATCH_START}\n<script>\n${safeCore}\n<\/script>\n<script>\n${safeUi}\n<\/script>\n${PATCH_END}\n`;
+        patchedCache=stripExistingPatch(original).replace(/<\/body\s*>/i,`${patch}</body>`);
+        return patchedCache;
+      }
+      function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
+      function choose(file){if(!file||!/\.html?$/i.test(file.name)){show('Choose an HTML file.',false);return}selectedFile=file;patchedCache=null;$('fileName').textContent=`Selected: ${file.name}`;$('patchHtml').disabled=false;$('patchZip').disabled=false;$('status').className='status'}
+      async function downloadHtml(){const btn=$('patchHtml');btn.disabled=true;btn.textContent='Patching…';try{const html=await buildPatched();const name=`${cleanName(selectedFile.name)}-Manual-Activation.html`;downloadBlob(new Blob([html],{type:'text/html;charset=utf-8'}),name);show(`Created ${name}.`,true)}catch(error){show(error?.message||'The HTML could not be patched.',false)}finally{btn.disabled=false;btn.textContent='Download patched HTML'}}
+      async function downloadZip(){const btn=$('patchZip');btn.disabled=true;btn.textContent='Building ZIP…';try{if(!window.JSZip)throw new Error('ZIP support did not load. Download the HTML instead.');const html=await buildPatched();const base=cleanName(selectedFile.name);const zip=new JSZip();zip.file(`${base}-Manual-Activation.html`,html);zip.file('ACTIVATION-SETUP.txt','WeBot manual activation build\n\n1. Customers pay through Stripe.\n2. Tell them activation may take up to 2 days.\n3. Verify payment in Stripe.\n4. Generate a code with webot-activation-admin.html.\n5. Customer opens WeBot on the correct device and enters the code.\n\nThe paid plan is stored in browser localStorage and expires on the date in the code. Clearing browser data or changing devices requires another code.');const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,`${base}-Manual-Activation.zip`);show('Patched ZIP created.',true)}catch(error){show(error?.message||'The ZIP could not be created.',false)}finally{btn.disabled=false;btn.textContent='Download patched ZIP'}}
+      $('drop').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',()=>choose($('fileInput').files[0]));
+      ['dragenter','dragover'].forEach(type=>$('drop').addEventListener(type,event=>{event.preventDefault();$('drop').classList.add('drag')}));['dragleave','drop'].forEach(type=>$('drop').addEventListener(type,event=>{event.preventDefault();$('drop').classList.remove('drag')}));$('drop').addEventListener('drop',event=>choose(event.dataTransfer.files[0]));
+      $('patchHtml').addEventListener('click',downloadHtml);$('patchZip').addEventListener('click',downloadZip);
+    })();
+  </script>
+</body>
+</html>
