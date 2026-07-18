@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171717">
+  <title>Activate WeBot Subscription</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#111112;--panel:#202020;--panel2:#2a2a2a;--line:rgba(255,255,255,.10);--line2:rgba(255,255,255,.15);--text:#f5f5f5;--muted:#a4a4a4;--accent:#d97757;--accent2:#e8a87c;--ok:#86efac;--bad:#fca5a5;--warn:#fde68a}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 50% -10%,rgba(217,119,87,.13),transparent 36%),var(--bg);color:var(--text)}body{display:grid;place-items:center;padding:20px}.shell{width:min(100%,520px)}.brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:16px}.mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));font:900 23px 'Barlow Condensed',sans-serif;color:#fff}.brandName{font:900 25px 'Barlow Condensed',sans-serif;letter-spacing:.02em}.card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,var(--panel),#191919);padding:21px;box-shadow:0 28px 100px rgba(0,0,0,.45)}.eyebrow{color:var(--accent2);font:800 11px 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase}.title{margin-top:5px;font:900 29px 'Barlow Condensed',sans-serif;line-height:1.05}.text{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6}.warning{margin-top:14px;padding:11px 12px;border:1px solid rgba(245,158,11,.30);border-radius:12px;background:rgba(245,158,11,.08);color:var(--warn);font-size:12px;line-height:1.5}.field{display:grid;gap:6px;margin-top:14px}.field label{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.input{width:100%;min-height:44px;border-radius:11px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);padding:10px 12px;font:500 13px Inter,sans-serif;outline:none}.input:focus{border-color:rgba(232,168,124,.55);box-shadow:0 0 0 3px rgba(232,168,124,.09)}textarea.input{min-height:94px;resize:vertical;word-break:break-all;line-height:1.5}.buttons{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:15px}.btn{min-height:44px;border-radius:11px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--text);padding:0 14px;font:800 13px Inter,sans-serif;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}.btn.primary{border-color:transparent;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff5eb}.btn:disabled{opacity:.48;cursor:not-allowed}.status{display:none;margin-top:13px;padding:11px 12px;border-radius:12px;font-size:12px;line-height:1.55}.status.show{display:block}.status.ok{border:1px solid rgba(34,197,94,.30);background:rgba(34,197,94,.08);color:var(--ok)}.status.bad{border:1px solid rgba(239,68,68,.30);background:rgba(239,68,68,.08);color:var(--bad)}.current{margin-top:13px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025);color:var(--muted);font-size:12px;line-height:1.5}.tiny{margin-top:13px;text-align:center;color:#707070;font-size:10px;line-height:1.5}@media(max-width:520px){body{padding:0;place-items:end center}.shell{width:100%}.brand{margin:20px 0 14px}.card{border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));min-height:70vh}.buttons{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><div class="mark">W</div><div class="brandName">WeBot</div></div>
+    <section class="card">
+      <div class="eyebrow">WeatherPower account</div>
+      <div class="title">Activate your subscription</div>
+      <div class="text">Enter the code WeatherPower sent after checking your Stripe payment. The paid plan is saved locally on this browser and device.</div>
+      <div class="warning"><strong>Activation can take up to 2 days.</strong> First open WeBot and sign in on this same device, then return here. Use the exact email entered at Stripe checkout.</div>
+      <div class="field"><label for="email">Stripe checkout email</label><input class="input" id="email" type="email" autocomplete="email" placeholder="name@example.com"></div>
+      <div class="field"><label for="code">Activation code</label><textarea class="input" id="code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="WB1-..."></textarea></div>
+      <div class="buttons"><button class="btn primary" id="activateBtn" type="button">Activate subscription</button><a class="btn" href="WeBotMOB.html">Back to WeBot</a></div>
+      <div class="status" id="status"></div>
+      <div class="current" id="current"></div>
+      <div class="tiny">Clearing browser data, using private browsing, or moving to another device removes the local activation. Contact WeatherPower for another code when needed.</div>
+    </section>
+  </main>
+  <script src="webot-activation-core.js"></script>
+  <script>
+    (()=>{
+      const $=id=>document.getElementById(id);
+      const formatDate=t=>new Intl.DateTimeFormat(undefined,{month:'long',day:'numeric',year:'numeric'}).format(new Date(t));
+      const escapeHtml=v=>String(v||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]);
+      function show(text,ok){const el=$('status');el.className=`status show ${ok?'ok':'bad'}`;el.innerHTML=text}
+      function updateCurrent(){const item=WebotActivation.readInstalledActivation();$('current').innerHTML=item&&item.expiresAt>Date.now()?`<strong>Active on this device:</strong> ${escapeHtml(WebotActivation.planName(item.plan))} through <strong>${escapeHtml(formatDate(item.expiresAt))}</strong>.`:'<strong>Current device:</strong> no manually activated paid plan found.'}
+      async function activate(){const btn=$('activateBtn');btn.disabled=true;btn.textContent='Checking code…';try{const verified=await WebotActivation.verifyCode($('code').value,$('email').value);const result=WebotActivation.installActivation(verified);show(`<strong>${escapeHtml(verified.planName)} activated.</strong> Your access is stored on this device through ${escapeHtml(formatDate(verified.expiresAt))}. Updated ${result.storageKeysUpdated} local WeBot account slot${result.storageKeysUpdated===1?'':'s'}.`,true);updateCurrent();btn.textContent='Activated'}catch(error){show(escapeHtml(error?.message||'The activation code could not be verified.'),false);btn.textContent='Activate subscription';btn.disabled=false}}
+      $('activateBtn').addEventListener('click',activate);updateCurrent();
+    })();
+  </script>
+</body>
+</html>
